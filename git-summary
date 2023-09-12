@@ -95,9 +95,9 @@ git_summary() {
     # Here we also decide if we want relative or full path names printouts.
     local target=$(${readlink_cmd} -f ${1:-`pwd`})
     if [ $full_path -eq 0 ] && command -v realpath >/dev/null && command -v python >/dev/null ; then 
-	local rtarget=$(get_relative_path $target)
+	    local rtarget=$(get_relative_path $target)
     else
-	local rtarget=$target
+	    local rtarget=$target
     fi
     local repos=$(list_repos $rtarget $deeplookup)
 
@@ -126,13 +126,13 @@ git_summary() {
     
     if command -v tput >/dev/null && eval 'tput cols' >/dev/null 2>&1;
     then
-	# If we have tput, adapt to terminal
-	local TERM_COLUMNS=$(tput cols)
-	local space_branch=$(( $TERM_COLUMNS - $space_repo - $header_space_state - 4))  # The 4 is the spaces between columns
-	local space_branch=$(( $space_branch < $header_space_branch ? $header_space_branch : $space_branch ))
-	local space_branch=$(( $space_branch > $longest_branch_name ? $longest_branch_name : $space_branch ))  # If this is commented then prompt will be full terminal width
+      # If we have tput, adapt to terminal
+      local TERM_COLUMNS=$(tput cols)
+      local space_branch=$(( $TERM_COLUMNS - $space_repo - $header_space_state - 4))  # The 4 is the spaces between columns
+      local space_branch=$(( $space_branch < $header_space_branch ? $header_space_branch : $space_branch ))
+      local space_branch=$(( $space_branch > $longest_branch_name ? $longest_branch_name : $space_branch ))  # If this is commented then prompt will be full terminal width
     else
-	local space_branch=$longest_branch_name # If we don't have tput, allow full width
+	    local space_branch=$longest_branch_name # If we don't have tput, allow full width
     fi
 
     local template=$(printf "%%b%%-%ds  %%-%d.%ds  %%-%ds" $space_repo $space_branch $space_branch $header_space_state) # template that truncates branch names to fit terminal width
@@ -212,10 +212,10 @@ gitC() {
     if [ $GIT4WINDOWS -eq 0 ]; then
        git -C "$(cygpath -w $ldir)" "$@"
     else
-       git -C "$ldir" "$@"
+       #git -C "$ldir" "$@" #not working for old versions of git
+       git --git-dir "$ldir" "$@"
     fi
 }
-
 
 print_header () {
     local template="$1"
@@ -342,9 +342,13 @@ list_repos () {
 
 	for i in ${git_directories[*]}; do
 		if [[ ! -z $i ]]; then
-    		$dirname_cmd -z $i | xargs -0 -L1
-    	fi
+      #$dirname_cmd -z $i | xargs -0 -L1
+    	echo "$i"
+    fi
   done
+
+  # add this one because this is not in the /srv/git directory
+  echo "/etc/salt/.git"
 }
 
 
